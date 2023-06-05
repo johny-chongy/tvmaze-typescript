@@ -12578,6 +12578,7 @@ var $searchForm = $("#searchForm");
 var $episodesList = $("#episodesList");
 ;
 ;
+;
 /** Given a search term, search for tv shows that match that query.
  *
  *  Returns (promise) array of show objects: [show, show, ...].
@@ -12658,45 +12659,53 @@ function getEpisodesOfShow(id) {
         var episodeResponses, EpisodeInterfaces;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, axios_1.default.get("".concat(BASE_URL, "/search/").concat(id, "/episodes"))];
+                case 0: return [4 /*yield*/, axios_1.default.get("".concat(BASE_URL, "/shows/").concat(id, "/episodes"))];
                 case 1:
                     episodeResponses = _a.sent();
-                    console.log("getrequest result: ", episodeResponses.data);
-                    EpisodeInterfaces = episodeResponses.data.map(function (result) { return ({
-                        id: result.id,
-                        name: result.name,
-                        season: result.season,
-                        number: result.number
+                    EpisodeInterfaces = episodeResponses.data.map(function (episode) { return ({
+                        id: episode.id,
+                        name: episode.name,
+                        season: episode.season,
+                        number: episode.number
                     }); });
                     return [2 /*return*/, EpisodeInterfaces];
             }
         });
     });
 }
-/** Write a clear docstring for this function... */
-$episodesArea;
+/** populateEpisodes takes in an array of episodes, empties the episodesList
+ *  container and iterates through the episodes array and appends an <li>
+ *  element to the episodesList <ul>
+ *
+ *  input: episodes ([{id, name, season, number}, ...])
+ *  output: <li>...tv show episode info here...</li>
+ */
 function populateEpisodes(episodes) {
     $episodesList.empty();
     for (var _i = 0, episodes_1 = episodes; _i < episodes_1.length; _i++) {
         var episode = episodes_1[_i];
-        var $episode = $("<li>\n          <p>".concat(episode.name, " (season ").concat(episode.season, ", number ").concat(episode.number, ")</p>\n        </li>\n      "));
+        var $episode = $("<li>\n          <span>\n            ".concat(episode.name, " (season ").concat(episode.season, ", episode ").concat(episode.number, ")\n          </span>\n        </li>\n      "));
         $episodesList.append($episode);
     }
 }
-$searchForm.on("submit", function (evt) {
+function clickedAndShowEpisodes(evt) {
     return __awaiter(this, void 0, void 0, function () {
+        var showId, episodes;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    evt.preventDefault();
-                    return [4 /*yield*/, searchForShowAndDisplay()];
+                    $episodesArea.show();
+                    showId = $(evt.target).closest(".Show").data("show-id");
+                    return [4 /*yield*/, getEpisodesOfShow(showId)];
                 case 1:
-                    _a.sent();
+                    episodes = _a.sent();
+                    populateEpisodes(episodes);
                     return [2 /*return*/];
             }
         });
     });
-});
+}
+$showsList.on("click", ".Show-getEpisodes", clickedAndShowEpisodes);
 
 
 /***/ })
