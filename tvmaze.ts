@@ -7,12 +7,20 @@ const DEFAULT_IMG_URL = "https://as2.ftcdn.net/v2/jpg/04/60/03/13/1000_F_4600313
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
+const $episodesList = $("#episodesList")
 
 interface ShowInterface {
   id: number,
   name: string,
   summary: string,
   image: string
+};
+
+interface EpisodeInterface {
+  id: number,
+  name: string,
+  season: string,
+  number: string
 };
 
 /** Given a search term, search for tv shows that match that query.
@@ -30,7 +38,7 @@ async function getShowsByTerm(term): Promise<ShowInterface[]> {
   console.log("getrequest result: ", showResponses.data);
 
   const ShowInterfaces: ShowInterface[] = showResponses.data.map(result => ({
-    id:result.show.id,
+    id: result.show.id,
     name: result.show.name,
     summary: result.show.summary,
     image: result.show.image?.medium || DEFAULT_IMG_URL
@@ -47,7 +55,7 @@ function populateShows(shows) {
 
   for (let show of shows) {
     const $show = $(
-        `<div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
+      `<div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img
               src=${show.image}
@@ -64,7 +72,8 @@ function populateShows(shows) {
        </div>
       `);
 
-    $showsList.append($show);  }
+    $showsList.append($show);
+  }
 }
 
 
@@ -90,8 +99,39 @@ $searchForm.on("submit", async function (evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+async function getEpisodesOfShow(id: number): Promise<EpisodeInterface[]> {
+  const episodeResponses = await axios.get(
+    `${BASE_URL}/search/${id}/episodes`
+  );
+  console.log("getrequest result: ", episodeResponses.data);
+
+  const EpisodeInterfaces: EpisodeInterface[] = episodeResponses.data.map(result => ({
+    id: result.id,
+    name: result.name,
+    season: result.season,
+    number: result.number
+  }))
+
+  return EpisodeInterfaces;
+}
 
 /** Write a clear docstring for this function... */
+$episodesArea
+function populateEpisodes(episodes) {
+  $episodesList.empty();
 
-// function populateEpisodes(episodes) { }
+  for (let episode of episodes) {
+    const $episode = $(
+      `<li>
+          <p>${episode.name} (season ${episode.season}, number ${episode.number})</p>
+        </li>
+      `);
+
+    $episodesList.append($episode);
+  }
+}
+
+$searchForm.on("submit", async function (evt) {
+  evt.preventDefault();
+  await searchForShowAndDisplay();
+});

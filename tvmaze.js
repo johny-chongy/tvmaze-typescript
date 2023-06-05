@@ -12575,6 +12575,8 @@ var DEFAULT_IMG_URL = "https://as2.ftcdn.net/v2/jpg/04/60/03/13/1000_F_460031310
 var $showsList = $("#showsList");
 var $episodesArea = $("#episodesArea");
 var $searchForm = $("#searchForm");
+var $episodesList = $("#episodesList");
+;
 ;
 /** Given a search term, search for tv shows that match that query.
  *
@@ -12651,9 +12653,50 @@ $searchForm.on("submit", function (evt) {
 /** Given a show ID, get from API and return (promise) array of episodes:
  *      { id, name, season, number }
  */
-// async function getEpisodesOfShow(id) { }
+function getEpisodesOfShow(id) {
+    return __awaiter(this, void 0, void 0, function () {
+        var episodeResponses, EpisodeInterfaces;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, axios_1.default.get("".concat(BASE_URL, "/search/").concat(id, "/episodes"))];
+                case 1:
+                    episodeResponses = _a.sent();
+                    console.log("getrequest result: ", episodeResponses.data);
+                    EpisodeInterfaces = episodeResponses.data.map(function (result) { return ({
+                        id: result.id,
+                        name: result.name,
+                        season: result.season,
+                        number: result.number
+                    }); });
+                    return [2 /*return*/, EpisodeInterfaces];
+            }
+        });
+    });
+}
 /** Write a clear docstring for this function... */
-// function populateEpisodes(episodes) { }
+$episodesArea;
+function populateEpisodes(episodes) {
+    $episodesList.empty();
+    for (var _i = 0, episodes_1 = episodes; _i < episodes_1.length; _i++) {
+        var episode = episodes_1[_i];
+        var $episode = $("<li>\n          <p>".concat(episode.name, " (season ").concat(episode.season, ", number ").concat(episode.number, ")</p>\n        </li>\n      "));
+        $episodesList.append($episode);
+    }
+}
+$searchForm.on("submit", function (evt) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    evt.preventDefault();
+                    return [4 /*yield*/, searchForShowAndDisplay()];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+});
 
 
 /***/ })
